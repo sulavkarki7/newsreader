@@ -1,40 +1,50 @@
-import 'dart:async';
-
-import 'package:bloc/bloc.dart';
-import 'package:meta/meta.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:newsreader/models/news_article%20.dart';
 import 'package:newsreader/repos/news_repository.dart';
 
-part 'news_event.dart';
-part 'news_state.dart';
+import 'news_event.dart';
+import 'news_state.dart';
 
 class NewsBloc extends Bloc<NewsEvent, NewsState> {
-  final NewsRepository repository;
-  NewsBloc(this.repository, {required NewsRepository newsRepository})
-      : super(NewsInitial()) {
-    on<LoadNews>(_onLoadNews);
-    on<SaveArticle>(_onSaveArticle);
-    on<LoadSavedArticles>(_onLoadSavedArticles);
-  }
+  final NewsRepository newsRepository;
 
-  FutureOr<void> _onLoadNews(LoadNews event, Emitter<NewsState> emit) async {
-    emit(NewsLoading());
-    try {
-      final articles = await repository.fetchNews(event.category);
-      emit(NewsLoaded(articles: articles));
-    } catch (e) {
-      emit(NewsError(message: e.toString()));
-    }
-  }
+  List<Article> bookmarkedArticles = [];
 
-  FutureOr<void> _onSaveArticle(
-      SaveArticle event, Emitter<NewsState> emit) async {
-    await repository.saveArticle(event.article);
-  }
+  NewsBloc({required this.newsRepository}) : super(NewsLoading()) {
+    on<LoadNews>((event, emit) async {
+      emit(NewsLoading());
+      try {
+        final articles = await newsRepository.fetchNews(event.category);
+        emit(NewsLoaded(articles: articles));
+      } catch (e) {
+        emit(NewsError(message: e.toString()));
+      }
+    });
 
-  FutureOr<void> _onLoadSavedArticles(
-      LoadSavedArticles event, Emitter<NewsState> emit) async {
-    final savedArticles = await repository.getSavedArticles();
-    emit(SavedArticlesLoaded(savedArticles: savedArticles));
+    on<SearchNews>((event, emit) async {
+      emit(NewsLoading());
+      try {} catch (e) {
+        emit(NewsError(message: e.toString()));
+      }
+    });
+
+    on<LoadSavedArticles>((event, emit) {
+      emit(NewsbooksmarksLoaded(bookmarkedArticles: bookmarkedArticles));
+    });
+
+    on<SaveArticle>((event, emit) {
+      bookmarkedArticles.add(event.article);
+      emit(NewsbooksmarksLoaded(bookmarkedArticles: bookmarkedArticles));
+    });
+
+    on<RemoveBookmark>((event, emit) {
+      bookmarkedArticles
+          .removeWhere((article) => article.title == event.article.title);
+      emit(NewsbooksmarksLoaded(bookmarkedArticles: bookmarkedArticles));
+    });
+    on<ClearAllBookmarks>((event, emit) {
+      bookmarkedArticles.clear();
+      emit(NewsbooksmarksLoaded(bookmarkedArticles: bookmarkedArticles));
+    });
   }
 }

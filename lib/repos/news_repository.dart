@@ -1,26 +1,22 @@
-// repository/news_repository.dart
-import 'package:hive/hive.dart';
-import 'package:dio/dio.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 import 'package:newsreader/models/news_article%20.dart';
+import 'package:newsreader/repos/news_response.dart';
 
 class NewsRepository {
-  final Dio _dio = Dio();
+  final String apiKey = 'your_api_key_here';
+  final String baseUrl = 'https://newsapi.org/v2';
 
-  Future<List<NewsArticle>> fetchNews(String category) async {
-    final response = await _dio.get('https://newsapi.org/v2/top-headlines',
-        queryParameters: {'category': category, 'apiKey': 'YOUR_NEWSAPI_KEY'});
-
-    final List articlesJson = response.data['articles'];
-    return articlesJson.map((json) => NewsArticle.fromJson(json)).toList();
-  }
-
-  Future<void> saveArticle(NewsArticle article) async {
-    final box = await Hive.openBox<NewsArticle>('saved_articles');
-    box.add(article);
-  }
-
-  Future<List<NewsArticle>> getSavedArticles() async {
-    final box = await Hive.openBox<NewsArticle>('saved_articles');
-    return box.values.toList();
+  Future<List<Article>> fetchNews(String category) async {
+    final response = await http.get(
+        Uri.parse('$baseUrl/top-headlines?category=$category&apiKey=$apiKey'));
+    if (response.statusCode == 200) {
+      final jsonResponse = json.decode(response.body);
+      final newsResponse = NewsResponse.fromJson(jsonResponse);
+      return newsResponse.articles;
+    } else {
+      throw Exception('Failed to load news');
+    }
   }
 }
