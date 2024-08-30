@@ -25,6 +25,7 @@ class NewsApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'News Reader',
         theme: ThemeData(
           primarySwatch: Colors.blue,
@@ -42,6 +43,12 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(30),
+          ),
+        ),
+        backgroundColor: Colors.blueAccent[100],
         title: const Text('News Reader App'),
         actions: [
           IconButton(
@@ -57,45 +64,50 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const NewsPage(category: 'general'),
-                  ),
-                );
-              },
-              child: const Text('General News'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        const NewsPage(category: 'technology'),
-                  ),
-                );
-              },
-              child: const Text('Technology News'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const NewsPage(category: 'sports'),
-                  ),
-                );
-              },
-              child: const Text('Sports News'),
-            ),
-          ],
+      body: RefreshIndicator.adaptive(
+        onRefresh: () async {
+          BlocProvider.of<NewsBloc>(context).add(LoadNews(category: 'general'));
+        },
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const NewsPage(category: 'general'),
+                    ),
+                  );
+                },
+                child: const Text('General News'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          const NewsPage(category: 'technology'),
+                    ),
+                  );
+                },
+                child: const Text('Technology News'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const NewsPage(category: 'sports'),
+                    ),
+                  );
+                },
+                child: const Text('Sports News'),
+              ),
+            ],
+          ),
         ),
       ),
     );

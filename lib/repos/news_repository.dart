@@ -5,7 +5,7 @@ import 'package:newsreader/models/news_article%20.dart';
 import 'package:newsreader/repos/news_response.dart';
 
 class NewsRepository {
-  final String apiKey = 'your_api_key_here';
+  final String apiKey = '39b0e5af45354aee945ed20e7a69558e';
   final String baseUrl = 'https://newsapi.org/v2';
 
   Future<List<Article>> fetchNews(String category) async {
