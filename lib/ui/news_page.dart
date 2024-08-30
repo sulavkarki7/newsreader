@@ -13,6 +13,7 @@ class NewsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool isNavigating = false;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blueAccent[100],
@@ -26,11 +27,15 @@ class NewsPage extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.bookmark),
             onPressed: () {
-              BlocProvider.of<NewsBloc>(context).add(LoadSavedArticles());
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const BookmarksPage()),
-              );
+              if (!isNavigating) {
+                isNavigating = true;
+                BlocProvider.of<NewsBloc>(context).add(LoadSavedArticles());
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const BookmarksPage()),
+                ).then((value) => isNavigating = false);
+              }
             },
           ),
         ],
