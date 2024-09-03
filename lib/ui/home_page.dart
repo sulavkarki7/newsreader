@@ -4,6 +4,7 @@ import 'package:newsreader/bloc/news_bloc.dart';
 import 'package:newsreader/bloc/news_event.dart';
 import 'package:newsreader/ui/bookmarks_page.dart';
 import 'package:newsreader/ui/news_page.dart';
+import 'package:newsreader/ui/news_search_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -20,6 +21,15 @@ class HomePage extends StatelessWidget {
         backgroundColor: Colors.blueAccent[100],
         title: const Text('News Reader App'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              showSearch(
+                context: context,
+                delegate: NewsSearchDelegate(),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.bookmark),
             onPressed: () {
